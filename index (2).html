@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cultural Compass</title>
+<meta name="description" content="Cultural Compass: an AI coach that gives new international hires the right words for their next workplace conversation.">
+<meta property="og:title" content="Cultural Compass">
+<meta property="og:description" content="An AI coach that gives new international hires the right words for their next workplace conversation.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#1D6470">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='17' fill='white' stroke='%2310262F' stroke-width='3'/%3E%3Cpath d='M24 9 L22.5 21 L17.5 19 Z' fill='%23E7A93C'/%3E%3Cpath d='M16 31 L17.5 19 L22.5 21 Z' fill='%2310262F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Source+Sans+3:wght@400;600;700&family=Literata:ital,opsz,wght@1,7..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F4F1; --surface:#FFFFFF; --ink:#10262F; --body:#33454D; --muted:#52636B;
+  --teal:#1D6470; --amber:#E7A93C; --amber-soft:#FBF0DC; --line:#CFD8D6; --chip:#DCE8E8; --field:#F7F9F8;
+  --display:'Bricolage Grotesque', Georgia, serif; --sans:'Source Sans 3', 'Segoe UI', system-ui, sans-serif; --voice:Literata, Georgia, serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1D23; --surface:#16272F; --ink:#ECF1EF; --body:#C6D1D0; --muted:#9DAEB0;
+  --teal:#7CC4CC; --amber:#E7A93C; --amber-soft:#3A3120; --line:#2E444C; --chip:#22404A; --field:#1B2F37; } }
+:root[data-theme="dark"]{
+  --bg:#0F1D23; --surface:#16272F; --ink:#ECF1EF; --body:#C6D1D0; --muted:#9DAEB0;
+  --teal:#7CC4CC; --amber:#E7A93C; --amber-soft:#3A3120; --line:#2E444C; --chip:#22404A; --field:#1B2F37; }
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+header.top{display:flex;align-items:center;gap:12px;padding:16px 24px;border-bottom:1px solid var(--line);background:var(--surface)}
+header.top h1{margin:0;font-family:var(--display);font-size:24px;font-weight:700}
+header.top p{margin:0;color:var(--muted);font-size:15px}
+.mark{width:34px;height:34px;flex:none}
+
+.shell{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:24px;max-width:1320px;margin:0 auto;padding:24px}
+@media (max-width:900px){.shell{grid-template-columns:minmax(0,1fr);padding:16px;gap:16px}}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.panel h2{margin:0 0 4px;font-family:var(--display);font-size:22px}
+.hint{margin:0;color:var(--muted);font-size:15px}
+
+/* Compass */
+details.compass > summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+details.compass > summary::-webkit-details-marker{display:none}
+.chev{font-size:14px;color:var(--muted)}
+@media (min-width:901px){ details.compass > summary{cursor:default;pointer-events:none} .chev{display:none} }
+.dims{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.dim{border-top:1px solid var(--line);padding-top:12px}
+.dim-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.dim-name{font-weight:700;font-size:16px}
+.gapflag{font-size:13px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--amber-soft);color:var(--ink)}
+.ends{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:2px}
+.track{position:relative;height:44px}
+.track input[type=range]{position:absolute;inset:0;width:100%;height:44px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;z-index:2}
+.track input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:4px}
+.track input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:4px}
+.track input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--teal);border:3px solid var(--surface);margin-top:-11px;box-shadow:0 0 0 1px var(--teal)}
+.track input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--teal);border:3px solid var(--surface)}
+.us{position:absolute;top:50%;width:16px;height:16px;background:var(--amber);transform:translate(-50%,-50%) rotate(45deg);z-index:1;pointer-events:none}
+.legend{display:flex;gap:18px;margin-top:14px;font-size:14px;color:var(--body);flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--teal)}
+.dia{width:12px;height:12px;background:var(--amber);transform:rotate(45deg)}
+details.adjust{margin-top:16px;font-size:15px}
+details.adjust summary{cursor:pointer;color:var(--teal);font-weight:600;min-height:44px;display:flex;align-items:center}
+.us-grid{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:8px 12px;align-items:center;margin-top:8px}
+.us-grid select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--field)}
+.note{margin-top:12px;font-size:14px;color:var(--muted)}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px;min-height:48px;font-weight:600;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--amber)}
+.main{min-width:0}
+.view[hidden]{display:none}
+
+/* Chat */
+.chat{background:var(--surface);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:620px}
+.log{flex:1;padding:24px;display:flex;flex-direction:column;gap:18px;overflow:auto;max-height:68vh}
+.welcome{text-align:center;padding:24px 8px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.welcome h2{margin:0;font-family:var(--display);font-size:30px}
+.welcome p{margin:0;max-width:34em;color:var(--body)}
+.starters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px;width:100%;max-width:720px}
+@media (max-width:600px){.starters{grid-template-columns:minmax(0,1fr)}}
+.starter{text-align:left;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;min-height:44px;font-size:16px;color:var(--body)}
+.starter:hover{border-color:var(--teal)}
+.msg-user{align-self:flex-end;max-width:min(560px,85%);background:var(--chip);padding:12px 18px;border-radius:18px}
+.msg-ai{max-width:760px;color:var(--ink)}
+.msg-ai p{margin:0 0 12px}
+.msg-ai ul{margin:0 0 12px;padding-left:22px}
+.msg-ai li{margin-bottom:6px}
+.msg-ai .lbl{color:var(--teal);font-weight:700}
+.thinking{display:inline-flex;align-items:center;gap:10px;color:var(--muted)}
+.pulse{width:12px;height:12px;border-radius:50%;background:var(--amber);animation:p 1s ease-in-out infinite}
+@keyframes p{50%{transform:scale(.6);opacity:.6}}
+.composer{border-top:1px solid var(--line);padding:14px;display:flex;gap:10px;align-items:flex-end}
+.composer textarea{flex:1;resize:none;min-height:52px;max-height:160px;padding:13px 16px;border:2px solid var(--line);border-radius:26px;background:var(--field)}
+.composer textarea:focus{border-color:var(--amber);outline:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:10px;border:2px solid var(--ink);background:var(--ink);color:var(--bg);font-weight:700;cursor:pointer}
+.btn.secondary{background:transparent;color:var(--ink)}
+.btn.small{min-height:44px;padding:0 14px;font-size:15px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.send{width:52px;height:52px;border-radius:50%;border:0;background:var(--amber);color:#10262F;cursor:pointer;flex:none;display:flex;align-items:center;justify-content:center}
+.send:disabled{background:var(--line);cursor:not-allowed}
+.chat-foot{display:flex;justify-content:space-between;align-items:center;padding:0 16px 12px;font-size:14px;color:var(--muted);gap:12px;flex-wrap:wrap}
+.linkbtn{background:none;border:0;color:var(--teal);font-weight:600;cursor:pointer;min-height:44px;padding:0 4px}
+
+/* Prep form */
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 20px}
+@media (max-width:640px){.form{grid-template-columns:minmax(0,1fr)}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.wide{grid-column:1/-1}
+.field label,.field legend{font-weight:700;font-size:15px}
+.field input[type=text],.field select,.field textarea{padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--field);min-height:48px}
+.field textarea{min-height:88px;resize:vertical}
+fieldset.field{border:0;padding:0;margin:0}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg label{font-weight:600}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:var(--field);cursor:pointer;font-size:15px}
+.seg input:checked + span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.seg input:focus-visible + span{outline:3px solid var(--amber);outline-offset:2px}
+.actions{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}
+
+.script{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px}
+.script h3{margin:0 0 6px;font-family:var(--display);font-size:24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 18px;padding:0;list-style:none}
+.chips li{background:var(--chip);border-radius:999px;padding:3px 12px;font-size:14px;font-weight:600}
+.line{border-top:1px solid var(--line);padding:14px 0}
+.line label{display:block;font-weight:700;color:var(--teal);font-size:15px;margin-bottom:6px}
+.line textarea{width:100%;border:1px solid transparent;border-radius:8px;background:transparent;font-family:var(--voice);font-style:italic;font-size:22px;line-height:1.4;padding:6px 8px;resize:vertical;min-height:60px;color:var(--ink)}
+.line textarea:hover{border-color:var(--line)}
+.line textarea:focus{border-color:var(--amber);outline:none;background:var(--field)}
+.cut{background:var(--amber-soft);border-radius:10px;padding:12px 16px;margin-top:6px}
+.practice{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+@media (max-width:640px){.practice{grid-template-columns:minmax(0,1fr)}}
+.practice > div{background:var(--field);border-radius:12px;padding:16px}
+.practice h4{margin:0 0 6px;font-size:15px;color:var(--teal)}
+.status{font-size:15px;color:var(--muted);min-height:1.5em}
+.error{color:#9B2C1E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .error{color:#F2A08F}}
+.unavailable{background:var(--amber-soft);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.reflist{margin:10px 0 0;padding-left:20px;font-size:15px;color:var(--body)}
+
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.row2 label{display:block;font-weight:700;font-size:14px;margin-bottom:4px}
+.row2 select{width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--field)}
+.adj{font-size:12px;font-weight:700;color:var(--teal);margin-left:6px}
+.resetbtn{margin-top:10px}
+.rank{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.rank h3{margin:0 0 6px;font-size:16px}
+.rank ol{margin:0;padding-left:20px;font-size:15px;color:var(--body)}
+.plan-head{font-family:var(--display);font-size:28px;margin:0 0 8px;line-height:1.2}
+.why{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 20px;padding:0;list-style:none}
+.why li{background:var(--chip);border-radius:999px;padding:4px 12px;font-size:14px;font-weight:600}
+.gaps{display:grid;gap:16px}
+.gap{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--surface)}
+.gap h4{margin:0 0 2px;font-family:var(--display);font-size:20px}
+.gap .meta{font-size:14px;color:var(--muted);margin:0 0 10px}
+.gap dl{margin:0;display:grid;gap:8px}
+.gap dt{font-weight:700;color:var(--teal);font-size:15px}
+.gap dd{margin:0}
+.scripts{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.scripts li{font-family:var(--voice);font-style:italic;font-size:19px;line-height:1.4;padding-left:14px;border-left:3px solid var(--amber)}
+.closing{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}
+@media (max-width:640px){.closing{grid-template-columns:minmax(0,1fr)}}
+.closing > div{background:var(--field);border-radius:12px;padding:16px}
+.closing h4{margin:0 0 6px;font-size:15px;color:var(--teal)}
+.whatif{display:flex;flex-direction:column;gap:10px}
+.whatif .wi{display:flex;justify-content:space-between;gap:12px;align-items:center;background:var(--field);border-radius:10px;padding:10px 14px}
+.site-foot{max-width:1320px;margin:0 auto;padding:8px 24px 32px;font-size:14px;color:var(--muted)}
+.site-foot a{color:var(--teal);font-weight:600}
+.privacy{font-size:14px;color:var(--muted);margin:2px 0 0}
+.hr{margin-top:16px;padding:12px 16px;border:1px solid var(--line);border-radius:10px;font-size:15px}
+</style>
+</head>
+<body>
+<header class="top">
+  <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 9 L22.5 21 L17.5 19 Z" fill="#E7A93C"/><path d="M16 31 L17.5 19 L22.5 21 Z" fill="currentColor"/></svg>
+  <div>
+    <h1>Cultural Compass</h1>
+    <p>The right words for the next two minutes of a real workday</p>
+  </div>
+</header>
+
+<div class="shell">
+  <aside aria-labelledby="compass-title">
+    <details class="compass panel" id="compassDetails" open>
+      <summary>
+        <div>
+          <h2 id="compass-title">Your Compass</h2>
+          <p class="hint">Country data is a starting point. Drag any marker to match how you actually work.</p>
+        </div>
+        <span class="chev" aria-hidden="true">Show / hide</span>
+      </summary>
+      <div class="row2">
+        <div><label for="homeSel">Home country</label><select id="homeSel"></select></div>
+        <div><label for="targetSel">Working in</label><select id="targetSel"></select></div>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span><i class="dot"></i>You (drag)</span>
+        <span><i class="dia"></i><span id="legendTarget">United States</span></span>
+      </div>
+      <div class="dims" id="dims"></div>
+      <button class="linkbtn resetbtn" id="resetBtn" type="button" hidden>Reset to country starting point</button>
+      <div class="rank" aria-live="polite">
+        <h3>Biggest gaps right now</h3>
+        <ol id="rankList"></ol>
+      </div>
+      <p class="note">1–7 scales, paraphrased from Erin Meyer’s eight dimensions. Values are starting estimates, not facts about any person. Saved in this browser only.</p>
+    </details>
+  </aside>
+
+  <main class="main">
+    <div class="unavailable" id="unavailable" hidden>The AI coach isn’t connected right now. You can still explore your Compass and see your biggest gaps.</div>
+    <div class="tabs" role="tablist" aria-label="Mode">
+      <button class="tab" role="tab" id="tab-plan" aria-controls="view-plan" aria-selected="true">Get a plan</button>
+      <button class="tab" role="tab" id="tab-ask" aria-controls="view-ask" aria-selected="false" tabindex="-1">Ask the coach</button>
+    </div>
+
+    <!-- PLAN -->
+    <section class="view" id="view-plan" role="tabpanel" aria-labelledby="tab-plan">
+      <div class="panel">
+        <h2>Tell me what’s happening</h2>
+        <p class="hint" style="margin-bottom:20px">Start from a real moment. You’ll get your top three culture gaps for this situation, words to try, a reflection and a 48-hour experiment.</p>
+        <form id="planForm" action="#" onsubmit="return false">
+          <div class="form">
+            <div class="field">
+              <label for="role">Your role</label>
+              <select id="role"><option>Expat professional</option><option>HR mobility</option><option>Relocation consultant</option><option>Manager of an international team</option></select>
+            </div>
+            <div class="field">
+              <label for="scenario">Scenario</label>
+              <select id="scenario">
+                <option value="meeting">Meeting</option><option value="feedback">Feedback</option><option value="1:1">1:1</option>
+                <option value="email">Email</option><option value="negotiation">Negotiation</option><option value="onboarding">Onboarding</option><option value="social">Social</option>
+              </select>
+            </div>
+            <div class="field wide">
+              <label for="challenge">What’s happening?</label>
+              <textarea id="challenge" required placeholder="e.g., In a meeting I told a colleague their idea was “wrong.” The room went quiet. How can I improve the situation?" aria-describedby="privacyHint"></textarea>
+              <p class="privacy" id="privacyHint">Describe the moment, not the people. Skip names and confidential details.</p>
+            </div>
+            <fieldset class="field">
+              <legend>How soon do you need help?</legend>
+              <div class="seg">
+                <label><input type="radio" name="urgency" value="today" checked><span>Today</span></label>
+                <label><input type="radio" name="urgency" value="this week"><span>This week</span></label>
+                <label><input type="radio" name="urgency" value="planning ahead"><span>Planning ahead</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="field">
+              <legend>Preferred style</legend>
+              <div class="seg">
+                <label><input type="radio" name="style" value="direct & concise" checked><span>Direct &amp; concise</span></label>
+                <label><input type="radio" name="style" value="diplomatic"><span>Diplomatic</span></label>
+                <label><input type="radio" name="style" value="step-by-step"><span>Step-by-step</span></label>
+              </div>
+            </fieldset>
+            <fieldset class="field wide">
+              <legend>Language comfort in English</legend>
+              <div class="seg">
+                <label><input type="radio" name="language" value="confident" checked><span>Confident</span></label>
+                <label><input type="radio" name="language" value="moderate"><span>Moderate</span></label>
+                <label><input type="radio" name="language" value="limited"><span>Limited</span></label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="actions">
+            <button class="btn" type="submit" id="planBtn">Build my plan</button>
+            <span class="status" id="planStatus" role="status"></span>
+          </div>
+        </form>
+      </div>
+      <div id="planOut"></div>
+    </section>
+
+    <!-- ASK -->
+    <section class="view" id="view-ask" role="tabpanel" aria-labelledby="tab-ask" hidden>
+      <div class="chat">
+        <div class="log" id="log" aria-live="polite">
+          <div class="welcome" id="welcome">
+            <h2>Ask about a real moment</h2>
+            <p>Meetings, feedback, email or culture shock. Answers use your Compass above.</p>
+            <div class="starters">
+              <button class="starter" type="button">In a meeting I said my colleague’s idea was “wrong.” How can I improve the situation?</button>
+              <button class="starter" type="button">I give a status update to executives in 10 minutes. How do I keep it short without sounding abrupt?</button>
+              <button class="starter" type="button">My U.S. manager called my proposal “interesting.” Is that good or bad?</button>
+              <button class="starter" type="button">I don’t understand why people here smile so much in meetings, even when they disagree.</button>
+            </div>
+          </div>
+        </div>
+        <form class="composer" id="composer" action="#" onsubmit="return false">
+          <label for="q" class="sr">Describe your situation</label>
+          <textarea id="q" rows="1" placeholder="Describe your situation…"></textarea>
+          <button class="send" id="sendBtn" type="submit" aria-label="Send" disabled>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+          </button>
+        </form>
+        <div class="chat-foot">
+          <span id="chatStatus" class="status" role="status"></span>
+          <span>
+            <button class="linkbtn" id="stopBtn" type="button" hidden>Stop</button>
+            <button class="linkbtn" id="clearBtn" type="button">New conversation</button>
+          </span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="site-foot">
+  <p>Designed and built by <a href="https://dariasur.com">Daria Sur</a>. Culture scales are starting estimates, not facts about any person. Coaching responses are generated by AI; check anything that touches HR, legal or immigration matters with the right people.</p>
+</footer>
+<noscript><p style="padding:16px 24px">Cultural Compass needs JavaScript turned on.</p></noscript>
+
+<script>
+(() => {
+  // ================= DATA (Cultural Compass starter dataset + us_baseline.json) =================
+  const DIMS = [
+    {k:"communicating_low_to_high_context", name:"Communicating", lo:"Low-context, explicit", hi:"High-context, implicit"},
+    {k:"evaluating_direct_to_indirect", name:"Evaluating (feedback)", lo:"Direct negative feedback", hi:"Indirect negative feedback"},
+    {k:"persuading_principles_to_applications", name:"Persuading", lo:"Principles first", hi:"Applications first"},
+    {k:"leading_egalitarian_to_hierarchical", name:"Leading", lo:"Egalitarian", hi:"Hierarchical"},
+    {k:"deciding_consensual_to_topdown", name:"Deciding", lo:"Consensual", hi:"Top-down"},
+    {k:"trusting_task_to_relationship", name:"Trusting", lo:"Task-based", hi:"Relationship-based"},
+    {k:"disagreeing_confrontational_to_avoids", name:"Disagreeing", lo:"Confrontational", hi:"Avoids confrontation"},
+    {k:"scheduling_linear_to_flexible", name:"Scheduling", lo:"Linear time", hi:"Flexible time"},
+  ];
+  const CSV = `Country,communicating_low_to_high_context,evaluating_direct_to_indirect,persuading_principles_to_applications,leading_egalitarian_to_hierarchical,deciding_consensual_to_topdown,trusting_task_to_relationship,disagreeing_confrontational_to_avoids,scheduling_linear_to_flexible
+United States,2,3,5,3,5,2,4,2
+Brazil,5,5,4,5,4,6,5,5
+Japan,6,6,4,6,5,5,6,4
+Germany,3,2,3,3,3,2,3,2
+France,4,3,2,4,4,3,3,3
+India,5,5,4,5,5,4,5,5
+China,6,6,4,6,5,5,6,4
+Mexico,5,5,4,5,5,5,5,5
+Netherlands,2,2,4,2,3,2,3,2
+Russia,4,3,3,5,5,4,4,4`;
+  const COUNTRIES = (() => {
+    const [hdr, ...rows] = CSV.trim().split("\n"); const cols = hdr.split(",");
+    const out = {};
+    rows.forEach(r => { const v = r.split(","); out[v[0]] = {}; cols.slice(1).forEach((c, i) => out[v[0]][c] = +v[i + 1]); });
+    return out;
+  })();
+  const NOT_LISTED = "Not listed";
+
+  // Scenario relevance: which dimensions matter most in each scene (multiplier on the raw gap)
+  const SCENARIO_WEIGHTS = {
+    "meeting":     {communicating_low_to_high_context:1.3, deciding_consensual_to_topdown:1.3, disagreeing_confrontational_to_avoids:1.2, persuading_principles_to_applications:1.1, scheduling_linear_to_flexible:1.1},
+    "feedback":    {evaluating_direct_to_indirect:1.5, disagreeing_confrontational_to_avoids:1.3, communicating_low_to_high_context:1.2},
+    "1:1":         {leading_egalitarian_to_hierarchical:1.4, evaluating_direct_to_indirect:1.2, trusting_task_to_relationship:1.2},
+    "email":       {communicating_low_to_high_context:1.5, scheduling_linear_to_flexible:1.2, persuading_principles_to_applications:1.1},
+    "negotiation": {persuading_principles_to_applications:1.3, disagreeing_confrontational_to_avoids:1.3, trusting_task_to_relationship:1.3, deciding_consensual_to_topdown:1.2},
+    "onboarding":  {trusting_task_to_relationship:1.3, leading_egalitarian_to_hierarchical:1.2, scheduling_linear_to_flexible:1.2, communicating_low_to_high_context:1.1},
+    "social":      {trusting_task_to_relationship:1.5, communicating_low_to_high_context:1.2},
+  };
+
+  // ================= STATE =================
+  const STORE = "cc-profile-v2", REFL = "cc-reflections-v1";
+  const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+  const st = Object.assign({ home: NOT_LISTED, target: "United States", overrides: {} }, load(STORE, {}));
+  const baseHome = () => st.home === NOT_LISTED ? Object.fromEntries(DIMS.map(d => [d.k, 4])) : COUNTRIES[st.home];
+  const homeVals = () => Object.fromEntries(DIMS.map(d => [d.k, st.overrides[d.k] ?? baseHome()[d.k]]));
+  const targetVals = () => COUNTRIES[st.target];
+
+  function rankGaps(scenario) {
+    const h = homeVals(), t = targetVals(), w = SCENARIO_WEIGHTS[scenario] || {};
+    return DIMS.map(d => {
+      const gap = t[d.k] - h[d.k], weight = w[d.k] || 1;
+      return { ...d, home: h[d.k], target: t[d.k], gap, abs: Math.abs(gap), weight, score: Math.abs(gap) * weight };
+    }).sort((a, b) => b.score - a.score || b.abs - a.abs);
+  }
+  const direction = g => g.gap === 0 ? "no difference on this scale"
+    : `the ${st.target === "United States" ? "U.S." : st.target} workplace sits ${g.abs} point${g.abs > 1 ? "s" : ""} closer to "${g.gap < 0 ? g.lo : g.hi}" than the learner`;
+
+  // ================= COMPASS UI =================
+  const homeSel = document.getElementById("homeSel"), targetSel = document.getElementById("targetSel");
+  [...Object.keys(COUNTRIES).filter(c => c !== "United States").sort(), NOT_LISTED].forEach(c => homeSel.add(new Option(c, c)));
+  Object.keys(COUNTRIES).forEach(c => targetSel.add(new Option(c, c)));
+  homeSel.value = st.home; targetSel.value = st.target;
+  homeSel.addEventListener("change", () => { st.home = homeSel.value; st.overrides = {}; save(STORE, st); renderDims(); });
+  targetSel.addEventListener("change", () => { st.target = targetSel.value; save(STORE, st); renderDims(); });
+  document.getElementById("resetBtn").addEventListener("click", () => { st.overrides = {}; save(STORE, st); renderDims(); homeSel.focus(); });
+
+  const dimsEl = document.getElementById("dims"), pct = v => (v - 1) / 6;
+  function renderDims() {
+    const h = homeVals(), t = targetVals();
+    document.getElementById("legendTarget").textContent = st.target;
+    dimsEl.innerHTML = "";
+    DIMS.forEach(d => {
+      const gap = Math.abs(h[d.k] - t[d.k]), id = "r-" + d.k, adjusted = st.overrides[d.k] !== undefined;
+      const wrap = document.createElement("div"); wrap.className = "dim";
+      wrap.innerHTML = `<div class="dim-head"><label class="dim-name" for="${id}"></label>${gap >= 3 ? '<span class="gapflag">Big gap</span>' : ''}</div>
+        <div class="track"><i class="us" style="left:calc(13px + (100% - 26px) * ${pct(t[d.k])})"></i><input type="range" id="${id}" min="1" max="7" step="1" value="${h[d.k]}"></div>
+        <div class="ends"><span></span><span></span></div>`;
+      const lab = wrap.querySelector("label"); lab.textContent = d.name;
+      if (adjusted) { const s = document.createElement("span"); s.className = "adj"; s.textContent = "adjusted"; lab.appendChild(s); }
+      const e = wrap.querySelectorAll(".ends span"); e[0].textContent = d.lo; e[1].textContent = d.hi;
+      const input = wrap.querySelector("input");
+      input.setAttribute("aria-valuetext", `You ${h[d.k]} of 7, ${st.target} ${t[d.k]}`);
+      input.addEventListener("change", () => { st.overrides[d.k] = +input.value; save(STORE, st); renderDims(); document.getElementById(id).focus(); });
+      dimsEl.appendChild(wrap);
+    });
+    document.getElementById("resetBtn").hidden = !Object.keys(st.overrides).length;
+    renderRank();
+  }
+  function renderRank() {
+    const sc = document.getElementById("scenario").value;
+    const top = rankGaps(sc).slice(0, 3);
+    const ol = document.getElementById("rankList"); ol.innerHTML = "";
+    top.forEach(g => { const li = document.createElement("li"); li.textContent = `${g.name}: gap ${g.abs}${g.weight > 1 ? `, weighted for ${sc}` : ""}`; ol.appendChild(li); });
+  }
+  document.getElementById("scenario").addEventListener("change", renderRank);
+  renderDims();
+  if (matchMedia("(max-width:900px)").matches) document.getElementById("compassDetails").open = false;
+
+  // ================= THINKING MODEL =================
+  const SYSTEM = `You are "Cultural Compass," an AI coach for relocation professionals and expats.
+
+Purpose: Help users adapt across cultures with a baseline of target-workplace norms, using:
+- Cultural dimensions research inspired by Erin Meyer's eight scales (paraphrased; never quote the book).
+- Team dynamics and psychological safety ideas summarized from Daniel Coyle's The Culture Code.
+- Paulo Freire's dialogic approach: start with the person's lived experience and co-create strategies; don't lecture.
+
+Safeguards:
+- Describe tendencies, never stereotypes; use "often/may" language. Country values are starting hypotheses. The learner's own adjusted values outrank country data.
+- Lead with the situation and the people involved; culture explains, it doesn't decide.
+- Preserve the learner's voice. The goal is being understood here, not sounding American.
+- Ask a brief clarifying question only if crucial; otherwise give best-guess guidance.
+- Give concrete phrases and 24–48 hour micro-experiments.
+- If advice may touch policy, legal or HR risk (harassment, discrimination, performance action, contracts, immigration), add: "Consult local HR or counsel for specifics."
+- Never ask for names or confidential details.
+
+Thinking process (do this silently, show only the result):
+1) Read the inputs and the Compass analysis provided by the app.
+2) The app has already ranked gaps by size and scenario relevance. Use its top 3 unless the challenge clearly points to another dimension; if you swap one, say why in one short clause.
+3) Check direction: a learner who is MORE direct than the target needs softening moves; one who is LESS direct needs explicitness moves. Never give generic advice that ignores direction.
+4) If a top gap is 0–1 points, say the gap is small and focus on the situation instead of culture.
+5) Adapt to style and language comfort:
+   - direct & concise: short bullets, no preamble.
+   - diplomatic: add a sentence of rationale per tip.
+   - step-by-step: order the actions as numbered steps where relevant.
+   - language comfort moderate/limited: scripts under 12 words, common words, no idioms; offer one simpler alternative phrase.
+6) Adapt to urgency: "today" = what to say in the next conversation first; "planning ahead" = include how to practice before the moment.
+
+Tone: supportive, practical, non-judgmental.`;
+
+  const val = n => (document.querySelector(`input[name="${n}"]:checked`) || {}).value;
+  function analysisBlock(scenario) {
+    const ranked = rankGaps(scenario);
+    const adj = Object.keys(st.overrides).map(k => DIMS.find(d => d.k === k).name);
+    return `Compass analysis (1–7 scales; home = learner, target = workplace):
+Home: ${st.home}${adj.length ? ` (learner adjusted: ${adj.join(", ")})` : ""}. Target: ${st.target}.
+${ranked.map((g, i) => `${i + 1}. ${g.name} [${g.lo} → ${g.hi}] learner ${g.home}, target ${g.target}, gap ${g.abs}${g.weight > 1 ? ` x${g.weight} scenario weight` : ""}: ${direction(g)}.`).join("\n")}
+Top 3 for this scenario: ${ranked.slice(0, 3).map(g => g.name).join(", ")}.`;
+  }
+
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function md(text) {
+    const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, (m, x) => /:$/.test(x) ? `<strong class="lbl">${x}</strong>` : `<strong>${x}</strong>`);
+    const out = []; let list = null;
+    text.split(/\n/).forEach(raw => {
+      const l = raw.trim();
+      if (/^([-*•]|\d+\.)\s+/.test(l)) { (list = list || []).push(`<li>${inline(l.replace(/^([-*•]|\d+\.)\s+/, ""))}</li>`); return; }
+      if (list) { out.push(`<ul>${list.join("")}</ul>`); list = null; }
+      if (l) out.push(`<p>${inline(l.replace(/^#+\s*/, ""))}</p>`);
+    });
+    if (list) out.push(`<ul>${list.join("")}</ul>`);
+    return out.join("");
+  }
+  const copyFor = code => ({ not_granted: "AI coaching needs your permission. Reload and choose Allow to try again.",
+    rate_limited: "Too many requests at once. Wait a moment, then try again.", cancelled: "Stopped.",
+    not_configured: "The coach isn’t connected yet. The site needs an API key.", too_large: "That conversation is too long. Start a new conversation and try again.",
+    bad_json: "The plan came back in an unexpected format. Try again." }[code]
+    || "Something went wrong reaching the coach. Try again.");
+
+  // ================= AI CONNECTION =================
+  // On claude.ai the page uses the built-in runtime. Anywhere else (Netlify) it calls /api/coach,
+  // a small edge function that keeps the API key on the server and streams the answer back.
+  const API = "/api/coach";
+  const fail = (code, text) => { const e = new Error(code); e.code = code; if (text) e.text = text; return e; };
+  async function remote(messages, { signal, onText, max_tokens = 1500 } = {}) {
+    let text = "";
+    try {
+      const res = await fetch(API, { method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ messages, max_tokens }), signal });
+      if (!res.ok) throw fail(res.status === 429 ? "rate_limited" : res.status === 503 ? "not_configured" : res.status === 413 ? "too_large" : "error");
+      const reader = res.body.getReader(), dec = new TextDecoder(); let buf = "";
+      for (;;) {
+        const { done, value } = await reader.read(); if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf("\n\n")) >= 0) {
+          const line = buf.slice(0, i).split("\n").find(l => l.startsWith("data:")); buf = buf.slice(i + 2);
+          if (!line) continue;
+          let d; try { d = JSON.parse(line.slice(5)); } catch { continue; }
+          if (d.type === "content_block_delta" && d.delta && d.delta.type === "text_delta") { text += d.delta.text; onText && onText({ text }); }
+          else if (d.type === "error") throw fail(d.error && d.error.type === "overloaded_error" ? "rate_limited" : "error", text);
+        }
+      }
+      return { text };
+    } catch (e) {
+      if (e && e.name === "AbortError") throw fail("cancelled", text);
+      if (e && e.code) { if (text && !e.text) e.text = text; throw e; }
+      throw fail("error", text);
+    }
+  }
+  function parseJSON(t) {
+    const s = String(t).replace(/```json|```/g, ""), a = s.indexOf("{"), b = s.lastIndexOf("}");
+    const body = s.slice(a, b + 1);
+    try { return JSON.parse(body); } catch {}
+    try { return JSON.parse(body.replace(/,\s*([}\]])/g, "$1")); } catch {}
+    console.warn("Cultural Compass: plan was not valid JSON. Raw reply:", t);
+    throw fail("bad_json");
+  }
+  const remoteSample = Object.assign((messages, opts) => remote(messages, opts),
+    { json: async (prompt, opts = {}) => {
+      try { return parseJSON((await remote([{ role: "user", content: prompt }], { ...opts, max_tokens: 2000 })).text); }
+      catch (e) {
+        if (e.code !== "bad_json") throw e;
+        const retry = prompt + "\n\nReminder: return strictly valid JSON. Use curly quotes “ ” inside text, never straight double quotes.";
+        return parseJSON((await remote([{ role: "user", content: retry }], { ...opts, max_tokens: 2000 })).text);
+      }
+    } });
+
+  let sample = null;
+  (async () => {
+    if (window.claude && window.claude.use) {
+      try { sample = await window.claude.use("sample"); } catch { sample = null; }
+    } else {
+      try { const r = await fetch(API, { cache: "no-store" }); const j = await r.json(); if (j.ready) sample = remoteSample; } catch { sample = null; }
+    }
+    if (!sample) { document.getElementById("unavailable").hidden = false; document.getElementById("planBtn").disabled = true; }
+    updateSend();
+  })();
+
+  // ================= TABS =================
+  const tabs = [...document.querySelectorAll(".tab")];
+  function select(tab, focus = true) {
+    tabs.forEach(t => { const on = t === tab; t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on; });
+    if (focus) tab.focus();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => select(t));
+    t.addEventListener("keydown", e => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); select(tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length]); } });
+  });
+
+  // ================= PLAN =================
+  let lastPlan = null;
+  const planForm = document.getElementById("planForm"), planStatus = document.getElementById("planStatus"), planOut = document.getElementById("planOut");
+  planForm.addEventListener("submit", async e => {
+    e.preventDefault(); if (!sample) return;
+    const inputs = { role: document.getElementById("role").value, home_country: st.home, target_country: st.target,
+      scenario: document.getElementById("scenario").value, challenge: document.getElementById("challenge").value.trim(),
+      urgency: val("urgency"), style: val("style"), language: val("language") };
+    if (!inputs.challenge) { planStatus.innerHTML = '<span class="error">Describe what’s happening first.</span>'; document.getElementById("challenge").focus(); return; }
+    const top = rankGaps(inputs.scenario).slice(0, 3);
+    const prompt = `${SYSTEM}
+
+Inputs:
+${Object.entries(inputs).map(([k, v]) => `- ${k}: ${v}`).join("\n")}
+
+${analysisBlock(inputs.scenario)}
+
+Return ONLY JSON, about 350–500 words of content in total:
+{"headline":"brief headline, under 10 words",
+ "gaps":[{"dimension":"one of the 8 names","insight":"what might be happening, 1-2 sentences, often/may language","adjustment":"what to do, 1-2 sentences","scripts":["2-3 short phrases they can say"],"red_flag":"what to avoid"}],
+ "swap_note":"empty string, or one clause explaining if you replaced an app-ranked gap",
+ "safety_tip":"one Coyle-style team-safety move",
+ "reflection":"one 60-second reflection question (Freire: about their own experience)",
+ "experiment":"one 48-hour micro-experiment with exact words",
+ "what_ifs":["2 practice variants, each one sentence starting 'What if'"],
+ "hr_note":"'Consult local HR or counsel for specifics.' only if relevant, else empty string"}
+Exactly 3 gaps, in this order unless you swap: ${top.map(g => g.name).join(", ")}.
+Output rules: reply with the JSON object only, no text before or after it. Inside any text value, never type the straight double-quote character; when you quote words someone should say, use curly quotes “like this” or single quotes.`;
+    const btn = document.getElementById("planBtn"); btn.disabled = true;
+    planStatus.textContent = "Comparing your Compass and building your plan. This usually takes 15 to 30 seconds.";
+    try {
+      const r = await sample.json(prompt, { cache: false });
+      lastPlan = { inputs, plan: r, top }; renderPlan(); planStatus.textContent = "";
+    } catch (err) { planStatus.innerHTML = `<span class="error">${esc(copyFor(err && err.code))}</span>`; }
+    finally { btn.disabled = false; }
+  });
+
+  function renderPlan() {
+    const { inputs, plan: r, top } = lastPlan;
+    const gaps = Array.isArray(r.gaps) ? r.gaps.slice(0, 3) : [];
+    const find = name => top.concat(rankGaps(inputs.scenario)).find(g => g.name.toLowerCase().startsWith(String(name || "").toLowerCase().split(" ")[0]));
+    planOut.innerHTML = `<article class="script" aria-labelledby="planTitle">
+      <h3 class="plan-head" id="planTitle" tabindex="-1">${esc(r.headline || "Your plan")}</h3>
+      <ul class="why" aria-label="Why these gaps">${top.map(g => `<li>${esc(g.name)}: gap ${g.abs}${g.weight > 1 ? ", key for " + esc(inputs.scenario) : ""}</li>`).join("")}</ul>
+      ${r.swap_note ? `<p class="hint" style="margin-top:-10px">${esc(r.swap_note)}</p>` : ""}
+      <div class="gaps">${gaps.map(g => { const m = find(g.dimension); return `<section class="gap">
+        <h4>${esc(g.dimension)}</h4>
+        ${m ? `<p class="meta">You ${m.home}, ${esc(st.target)} ${m.target} on ${esc(m.lo)} → ${esc(m.hi)}</p>` : ""}
+        <dl><div><dt>Insight</dt><dd>${esc(g.insight)}</dd></div>
+        <div><dt>Adjustment</dt><dd>${esc(g.adjustment)}</dd></div>
+        <div><dt>Try saying</dt><dd><ul class="scripts">${(g.scripts || []).map(s => `<li>${esc(String(s).replace(/^["“]|["”]$/g, ""))}</li>`).join("")}</ul></dd></div>
+        <div><dt>Red flag</dt><dd>${esc(g.red_flag)}</dd></div></dl></section>`; }).join("")}</div>
+      <div class="closing">
+        <div><h4>Team-safety tip</h4><p style="margin:0">${esc(r.safety_tip)}</p></div>
+        <div><h4>48-hour experiment</h4><p style="margin:0">${esc(r.experiment)}</p></div>
+        <div style="grid-column:1/-1">
+          <h4>60-second reflection</h4>
+          <label for="reflect" style="display:block;margin-bottom:8px">${esc(r.reflection)}</label>
+          <textarea id="reflect" style="width:100%;min-height:72px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)"></textarea>
+          <div class="actions" style="margin-top:10px"><button class="btn small secondary" type="button" id="saveRefl">Save reflection</button><span class="status" id="reflStatus" role="status"></span></div>
+        </div>
+      </div>
+      <h4 style="margin:22px 0 10px;font-size:17px">Practice a what-if</h4>
+      <div class="whatif">${(r.what_ifs || []).slice(0, 2).map((w, i) => `<div class="wi"><span>${esc(w)}</span><button class="btn small secondary" type="button" data-wi="${i}">Practice</button></div>`).join("")}</div>
+      ${r.hr_note ? `<p class="hr">${esc(r.hr_note)}</p>` : ""}
+      <div class="actions"><button class="btn small" type="button" id="copyPlan">Copy plan</button><span class="status" id="copyStatus" role="status"></span></div>
+    </article>`;
+    document.getElementById("planTitle").focus();
+    planOut.querySelectorAll("[data-wi]").forEach(b => b.addEventListener("click", () => {
+      const w = r.what_ifs[+b.dataset.wi];
+      select(document.getElementById("tab-ask"), false);
+      ask(`Let's practice. Original situation: ${inputs.challenge}\n\n${w}\n\nPlay the other person in one or two lines, then let me respond. After my reply, give brief feedback and one better phrasing.`, `Practice: ${w}`);
+    }));
+    document.getElementById("saveRefl").addEventListener("click", () => {
+      const v = document.getElementById("reflect").value.trim(), s = document.getElementById("reflStatus");
+      if (!v) { s.textContent = "Write a line first."; return; }
+      const list = load(REFL, []); list.unshift({ at: new Date().toISOString(), q: r.reflection, a: v }); save(REFL, list.slice(0, 50));
+      s.textContent = `Saved in this browser (${Math.min(list.length, 50)} so far).`;
+    });
+    document.getElementById("copyPlan").addEventListener("click", async () => {
+      const txt = [r.headline, ...gaps.map(g => `\n${g.dimension}\nInsight: ${g.insight}\nAdjustment: ${g.adjustment}\nTry: ${(g.scripts || []).map(s => `"${s}"`).join(" / ")}\nRed flag: ${g.red_flag}`),
+        `\nTeam-safety tip: ${r.safety_tip}`, `60-second reflection: ${r.reflection}`, `48-hour experiment: ${r.experiment}`,
+        `What-ifs:\n- ${(r.what_ifs || []).join("\n- ")}`, r.hr_note || ""].join("\n");
+      const s = document.getElementById("copyStatus");
+      try { await navigator.clipboard.writeText(txt.trim()); s.textContent = "Copied."; } catch { s.textContent = "Couldn’t copy automatically. Select the text and copy it."; }
+    });
+  }
+
+  // ================= CHAT =================
+  const log = document.getElementById("log"), q = document.getElementById("q"), sendBtn = document.getElementById("sendBtn");
+  const chatStatus = document.getElementById("chatStatus"), stopBtn = document.getElementById("stopBtn");
+  let turns = [], busy = false, ctl = null;
+  function updateSend() { sendBtn.disabled = busy || !q.value.trim() || !sample; }
+  q.addEventListener("input", () => { q.style.height = "auto"; q.style.height = Math.min(q.scrollHeight, 160) + "px"; updateSend(); });
+  q.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) ask(q.value.trim()); } });
+  document.getElementById("composer").addEventListener("submit", e => { e.preventDefault(); if (!sendBtn.disabled) ask(q.value.trim()); });
+  const bindStarters = () => log.querySelectorAll(".starter").forEach(b => b.addEventListener("click", () => ask(b.textContent)));
+  bindStarters();
+  stopBtn.addEventListener("click", () => ctl && ctl.abort());
+  const welcomeHTML = document.getElementById("welcome").outerHTML;
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    if (busy && ctl) ctl.abort(); turns = []; log.innerHTML = welcomeHTML; chatStatus.textContent = ""; bindStarters(); q.focus();
+  });
+
+  const FIRST = `Answer in this structure, using **Label:** lines, about 300–400 words:
+A brief headline in bold on its own line.
+For each of the top 3 gaps (drop any gap of 0–1 points and say the gap is small):
+**<Dimension>:** then bullets
+- **Insight:** ...
+- **Adjustment:** ...
+- **Try:** 2–3 short phrases in quotes separated by " / "
+- **Red flag:** ...
+Then:
+**Team-safety tip:** one Coyle-style move.
+**60-second reflection:** one question about their own experience.
+**48-hour experiment:** one action with exact words in bold quotes.
+**What-if:** two practice variants.
+Add "Consult local HR or counsel for specifics." only if relevant.`;
+  const FOLLOW = `This is a follow-up. Answer directly in under 150 words: start with a plain yes / no / it depends, give the key distinction with example phrasing in bold quotes, then **Reflection:** one question and **48-hour experiment:** one action. If this is a practice role-play, stay in the role-play format the learner asked for.`;
+
+  function buildInput() {
+    return turns.map((t, i) => {
+      if (t.role !== "user") return t;
+      let c = "";
+      if (i === 0) c += SYSTEM + "\n\nInputs: role and scenario not specified; infer from the message. Style: direct & concise. Language comfort: confident.\n\n" + analysisBlock("") + "\n\n";
+      if (i === turns.length - 1) c += (i === 0 && !t.practice ? FIRST : FOLLOW) + "\n\n";
+      return { role: "user", content: c + "Learner: " + t.content };
+    });
+  }
+  async function ask(text, shown) {
+    if (!text || busy || !sample) return;
+    busy = true; updateSend(); if (!shown) { q.value = ""; q.style.height = "auto"; }
+    const w = document.getElementById("welcome"); if (w) w.remove();
+    const u = document.createElement("div"); u.className = "msg-user"; u.textContent = shown || text; log.appendChild(u);
+    turns.push({ role: "user", content: text, practice: !!shown });
+    const out = document.createElement("div"); out.className = "msg-ai";
+    out.innerHTML = '<span class="thinking"><i class="pulse"></i>Thinking…</span>'; log.appendChild(out); log.scrollTop = log.scrollHeight;
+    ctl = new AbortController(); stopBtn.hidden = false; chatStatus.textContent = "";
+    try {
+      const { text: a } = await sample(buildInput().map(({ role, content }) => ({ role, content })), { signal: ctl.signal, cache: false,
+        onText: ({ text }) => { out.innerHTML = md(text); log.scrollTop = log.scrollHeight; } });
+      out.innerHTML = md(a); turns.push({ role: "assistant", content: a });
+    } catch (e) {
+      if (e && e.text) { out.innerHTML = md(e.text); turns.push({ role: "assistant", content: e.text }); } else { out.remove(); turns.pop(); }
+      chatStatus.innerHTML = `<span class="${e && e.code === "cancelled" ? "" : "error"}">${esc(copyFor(e && e.code))}</span>`;
+    } finally { busy = false; ctl = null; stopBtn.hidden = true; updateSend(); log.scrollTop = log.scrollHeight; }
+  }
+})();
+</script>
+</body>
+</html>
