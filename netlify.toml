@@ -1,0 +1,5 @@
+# No build step: Netlify serves index.html as-is and deploys the edge function.
+[build]
+  publish = "."
+  command = ""
+  edge_functions = "netlify/edge-functions"
