@@ -515,12 +515,42 @@ Top 3 for this scenario: ${ranked.slice(0, 3).map(g => g.name).join(", ")}.`;
       throw fail("error", text);
     }
   }
+  // Escapes stray double quotes inside text values, e.g. Say "thanks" -> Say \"thanks\"
+  function repairQuotes(s) {
+    let out = "", inStr = false;
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (c === "\\" && inStr) { out += c + (s[i + 1] || ""); i++; continue; }
+      if (c === '"') {
+        if (!inStr) { inStr = true; out += c; continue; }
+        const m = s.slice(i + 1).match(/^\s*(.)/), next = m ? m[1] : "";
+        if (next === "," || next === "}" || next === "]" || next === ":" || next === "") { inStr = false; out += c; }
+        else out += '\\"';
+        continue;
+      }
+      if (inStr && (c === "\n" || c === "\r")) { out += c === "\n" ? "\\n" : ""; continue; }
+      out += c;
+    }
+    return out;
+  }
   function parseJSON(t) {
     const s = String(t).replace(/```json|```/g, ""), a = s.indexOf("{"), b = s.lastIndexOf("}");
-    try { return JSON.parse(s.slice(a, b + 1)); } catch { throw fail("bad_json"); }
+    const body = s.slice(a, b + 1);
+    try { return JSON.parse(body); } catch {}
+    try { return JSON.parse(body.replace(/,\s*([}\]])/g, "$1")); } catch {}
+    try { return JSON.parse(repairQuotes(body).replace(/,\s*([}\]])/g, "$1")); } catch {}
+    console.warn("Cultural Compass: plan was not valid JSON. Raw reply:", t);
+    throw fail("bad_json");
   }
   const remoteSample = Object.assign((messages, opts) => remote(messages, opts),
-    { json: async (prompt, opts = {}) => parseJSON((await remote([{ role: "user", content: prompt }], { ...opts, max_tokens: 2000 })).text) });
+    { json: async (prompt, opts = {}) => {
+      try { return parseJSON((await remote([{ role: "user", content: prompt }], { ...opts, max_tokens: 2000 })).text); }
+      catch (e) {
+        if (e.code !== "bad_json") throw e;
+        const retry = prompt + "\n\nReminder: return strictly valid JSON. Use curly quotes “ ” inside text, never straight double quotes.";
+        return parseJSON((await remote([{ role: "user", content: retry }], { ...opts, max_tokens: 2000 })).text);
+      }
+    } });
 
   let sample = null;
   (async () => {
@@ -571,7 +601,8 @@ Return ONLY JSON, about 350–500 words of content in total:
  "experiment":"one 48-hour micro-experiment with exact words",
  "what_ifs":["2 practice variants, each one sentence starting 'What if'"],
  "hr_note":"'Consult local HR or counsel for specifics.' only if relevant, else empty string"}
-Exactly 3 gaps, in this order unless you swap: ${top.map(g => g.name).join(", ")}.`;
+Exactly 3 gaps, in this order unless you swap: ${top.map(g => g.name).join(", ")}.
+Output rules: reply with the JSON object only, no text before or after it. Inside any text value, never type the straight double-quote character; when you quote words someone should say, use curly quotes “like this” or single quotes.`;
     const btn = document.getElementById("planBtn"); btn.disabled = true;
     planStatus.textContent = "Comparing your Compass and building your plan. This usually takes 15 to 30 seconds.";
     try {
